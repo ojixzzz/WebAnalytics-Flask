@@ -1,7 +1,9 @@
 Flask==0.10.1
+greenlet==0.4.9
+gunicorn==19.6.0
 itsdangerous==0.24
 Jinja2==2.8
 MarkupSafe==0.23
+meinheld==0.5.9
 pymongo==3.2.2
 Werkzeug==0.11.9
-wheel==0.24.0
