@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>{% block title %}{% endblock %} - Pi Analytic</title>
+		<meta content="text/html; charset=utf-8" http-equiv="content-type">
+		<meta name="description" content="Freewall demo fit zone" />
+		<meta name="keywords" content="javascript, dynamic, grid, layout, jquery plugin, fit zone"/>
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}" />
+		<script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.10.2.min.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='js/freewall.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='js/chart.js') }}"></script>
+
+		<style type="text/css">
+			html, body {
+				height: 100%;
+				width: 100%;
+				margin: 0;
+				padding: 0;
+			}
+			.layout {
+				position: absolute;
+				right: 0px;
+				left: 0px;
+				top: 0px;
+				bottom: 0px;
+				padding: 15px;
+			}
+			.header {
+				height: 100%;
+			}
+			.free-wall {
+				width: 100%;
+				height: 100%;
+			}
+
+			@keyframes start {
+				from {
+					transform: scale(0);
+				}
+				to {
+					transform: scale(1);
+				}
+			}
+
+			@-webkit-keyframes start {
+				from {
+					-webkit-transform: scale(0);
+				}
+				to {
+					-webkit-transform: scale(1);
+				}
+			}
+
+			.free-wall .brick[data-state="init"] {
+				display: none;
+			}
+
+			.free-wall .brick[data-state="start"]  {
+				display: block;
+				animation: start 0.5s;
+				-webkit-animation: start 0.5s;
+			}
+
+			.free-wall .brick[data-state="move"]  {
+				transition: top 0.5s, left 0.5s, width 0.5s, height 0.5s;
+				-webkit-transition: top 0.5s, left 0.5s, width 0.5s, height 0.5s;
+			}
+		</style>
+	</head>
+	<body>
+		{% block content %}{% endblock %}
+	</body>
+</html>

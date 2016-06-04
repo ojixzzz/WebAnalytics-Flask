@@ -1,0 +1,4 @@
+.DS_Store
+venv/*
+analytic/config.py
+*.pyc

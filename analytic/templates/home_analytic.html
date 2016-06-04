@@ -1,0 +1,96 @@
+{% extends "layout_analytic.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+	
+		<div class="layout">
+			<div class="canvas-holder">
+				<canvas id="myChart" width="300" height="100"></canvas>
+			</div>
+			<div id="freewall" class="free-wall" style='width: 100%; margin: auto;'>
+				<div class='brick' style='width: 200px; height: 200px; background-color: rgb(243, 156, 18)'>
+					<div class='cover'>
+						<a class="float-left" href="example/css-animate.html" target="_blank">
+							Menit ini (vs lalu: ^100%)<br><br><br>
+							<p>
+								<span style="font-size: 65px; text-align: center;">{{ data['count_menit_ini'] }}</span> transaksi
+							</p>
+							<div class="read-more">View chart ...</div>
+						</a>
+					</div>
+				</div>
+				<div class='brick' style='width: 200px; height: 200px; background-color: rgb(211, 84, 0)'>
+					<div class='cover'>
+						Hari ini (vs lalu: ^100%)<br><br><br>
+						<p>
+							<span style="font-size: 65px; text-align: center;">{{ data['count_hari_ini'] }}</span> transaksi
+						</p>
+					</div>
+				</div>
+				<div class='brick' style='width: 200px; height: 200px; background-color: rgb(41, 128, 185)'>
+					<div class='cover'>
+						Bulan ini (vs lalu: ^100%)<br><br><br>
+						<p>
+							<span style="font-size: 65px; text-align: center;">{{ data['count_bulan_ini'] }}</span> transaksi
+						</p>
+					</div>
+				</div>
+				<div class='brick' style='width: 200px; height: 200px; background-color: rgb(39, 174, 96)'>
+					<div class='cover'>
+						Tahun ini (vs lalu: ^100%)<br><br><br>
+						<p>
+							<span style="font-size: 65px; text-align: center;">{{ data['count_tahun_ini'] }}</span> transaksi
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script type="text/javascript">
+
+			$(function() {
+				var wall = new Freewall("#freewall");
+				wall.reset({
+					selector: '.brick',
+					animate: true,
+					cellW: 260,
+					cellH: 160,
+					delay: 30,
+					onResize: function() {
+						wall.fitWidth();
+					}
+				});
+				wall.fitWidth();
+
+				var ctx = $("#myChart");
+				var myChart = new Chart(ctx, {
+				    type: 'line',
+				    data: {
+				        labels: [
+				            {% for datax in data['stat_hari_ini'] %}
+				            	{{ datax['waktu'] }},
+				            {% endfor %}
+				        ],
+				        datasets: [{
+				            label: '# Menit ini',
+				            data: [
+				            {% for datax in data['stat_hari_ini'] %}
+				            	{{ datax['count'] }},
+				            {% endfor %}
+				            ]
+				        }]
+				    },
+				    options: {
+				        scales: {
+				            yAxes: [{
+				                ticks: {
+				                    beginAtZero:true
+				                }
+				            }]
+				        }
+				    }
+				});
+
+			});
+		</script>
+{% endblock %}
