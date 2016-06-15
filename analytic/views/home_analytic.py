@@ -83,6 +83,16 @@ def is_stat_exist(stat, x):
             return row
     return False
 
+def convert_from_mapreduce(resultMapreduce):
+    statistik = []
+    for row in resultMapreduce:
+        dtstat = {
+            'waktu': row['_id'], 
+            'count': row['value']
+        }
+        statistik.append(dtstat)
+    return statistik
+
 @app.route('/')
 def report():
     id_domain = 1
@@ -98,23 +108,22 @@ def report():
     except ValueError:
         dt_tahun_sebelum = dt_today.replace(year=dt_today.year-1, day=dt_today.day-1)
 
-    reducer = Code(
-        """
-        function(obj, result){
-            result.count++;
-        }
-        """
-    )
+    resultMapreduce = db_pageview.map_reduce(
+        Code("""
+            function() {
+                 emit ( this.created.getSeconds(),  1);
+            }
+        """), 
+        Code("""
+            function (key, values) {
+                return Array.sum(values);
+            }
+        """), 
+        "hasilnya",
+        query={"time_bucket": dt_today.strftime('%Y-%m-%d %H-%M-minute'), "id_domain": id_domain}
+    ).find()
+    stat_menit_ini = convert_from_mapreduce(resultMapreduce)
 
-    stat_menit_ini = db_pageview.group(
-        key= Code('''function(doc) {
-                        return { waktu: doc.created.getSeconds() };
-                }'''
-        ), 
-        condition={"time_bucket": dt_today.strftime('%Y-%m-%d %H-%M-minute'), "id_domain": id_domain}, 
-        initial={"count": 0}, 
-        reduce=reducer
-    )
     statistik = []
     for x in range(1, 60):
         dtstat = is_stat_exist(stat_menit_ini, x)
@@ -128,15 +137,22 @@ def report():
     count_menit_ini = db_pageview.count({"time_bucket": dt_today.strftime('%Y-%m-%d %H-%M-minute'), "id_domain": id_domain})
     count_menit_sebelum = db_pageview.count({"time_bucket": dt_menit_sebelum.strftime('%Y-%m-%d %H-%M-minute'), "id_domain": id_domain})
 
-    stat_hari_ini = db_pageview.group(
-        key= Code('''function(doc) {
-                        return { waktu: doc.created.getHours() };
-                }'''
-        ), 
-        condition={"time_bucket": dt_today.strftime('%Y-%m-%d-day'), "id_domain": id_domain}, 
-        initial={"count": 0}, 
-        reduce=reducer
-    )
+    resultMapreduce = db_pageview.map_reduce(
+        Code("""
+            function() {
+                 emit ( this.created.getHours(),  1);
+            }
+        """), 
+        Code("""
+            function (key, values) {
+                return Array.sum(values);
+            }
+        """), 
+        "hasilnya",
+        query={"time_bucket": dt_today.strftime('%Y-%m-%d-day'), "id_domain": id_domain}
+    ).find()
+    stat_hari_ini = convert_from_mapreduce(resultMapreduce)
+
     statistik = []
     for x in range(0, 23):
         dtstat = is_stat_exist(stat_hari_ini, x)
@@ -150,15 +166,22 @@ def report():
     count_hari_ini = db_pageview.count({"time_bucket": dt_today.strftime('%Y-%m-%d-day'), "id_domain": id_domain})
     count_hari_sebelum = db_pageview.count({"time_bucket": dt_hari_sebelum.strftime('%Y-%m-%d-day'), "id_domain": id_domain})
 
-    stat_bulan_ini = db_pageview.group(
-        key= Code('''function(doc) {
-                        return { waktu: doc.created.getDate() };
-                }'''
-        ), 
-        condition={"time_bucket": dt_today.strftime('%Y-%m-month'), "id_domain": id_domain}, 
-        initial={"count": 0}, 
-        reduce=reducer
-    )
+    resultMapreduce = db_pageview.map_reduce(
+        Code("""
+            function() {
+                 emit ( this.created.getDate(),  1);
+            }
+        """), 
+        Code("""
+            function (key, values) {
+                return Array.sum(values);
+            }
+        """), 
+        "hasilnya",
+        query={"time_bucket": dt_today.strftime('%Y-%m-month'), "id_domain": id_domain}
+    ).find()
+    stat_bulan_ini = convert_from_mapreduce(resultMapreduce)
+
     statistik = []
     for x in range(1, 31):
         dtstat = is_stat_exist(stat_bulan_ini, x)
@@ -172,15 +195,22 @@ def report():
     count_bulan_ini = db_pageview.count({"time_bucket": dt_today.strftime('%Y-%m-month'), "id_domain": id_domain})
     count_bulan_sebelum = db_pageview.count({"time_bucket": dt_bulan_sebelum.strftime('%Y-%m-month'), "id_domain": id_domain})
 
-    stat_tahun_ini = db_pageview.group(
-        key= Code('''function(doc) {
-                        return { waktu: doc.created.getMonth() };
-                }'''
-        ), 
-        condition={"time_bucket": dt_today.strftime('%Y-year'), "id_domain": id_domain}, 
-        initial={"count": 0}, 
-        reduce=reducer
-    )
+    resultMapreduce = db_pageview.map_reduce(
+        Code("""
+            function() {
+                 emit ( this.created.getMonth(),  1);
+            }
+        """), 
+        Code("""
+            function (key, values) {
+                return Array.sum(values);
+            }
+        """), 
+        "hasilnya",
+        query={"time_bucket": dt_today.strftime('%Y-year'), "id_domain": id_domain}
+    ).find()
+    stat_tahun_ini = convert_from_mapreduce(resultMapreduce)
+
     statistik = []
     for x in range(1, 12):
         dtstat = is_stat_exist(stat_tahun_ini, x)
